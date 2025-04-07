@@ -7,16 +7,17 @@ from datetime import datetime
 # rental price - number/float
 # status - 1 (ready) / 0 (in rent) / 2 (in maintenance)
 data = [
-    ["CR001", "Avanza", "Toyota", 2005, 1000000, 1],
-    ["CR002", "Innova", "Toyota", 2015, 1500000, 2],
-    ["CR003", "Terios", "Daihatsu", 2010, 2000000, 1],
-    ["CR004", "Sigra", "Daihatsu", 2013, 1200000, 3],
-    ["CR005", "Xpander", "Mitsubishi", 2018, 3000000, 1]
+    ["CR001", "B1234SAT", "Avanza", "Toyota", 2005, 1000000, 1],
+    ["CR002", "DA345BX", "Innova", "Toyota", 2015, 1500000, 2],
+    ["CR003", "B9834BCN", "Terios", "Daihatsu", 2010, 2000000, 1],
+    ["CR004", "R374JKN", "Sigra", "Daihatsu", 2013, 1200000, 3],
+    ["CR005", "B34DK", "Xpander", "Mitsubishi", 2018, 3000000, 1]
 ]
 
 cars = []
 carTemplate = {
     "id": "",
+    "plateNum": "",
     "model": "",
     "brand": "",
     "year": 0,
@@ -28,15 +29,16 @@ def importData():
     for i in range(5):
         car = carTemplate.copy()
         car["id"] = data[i][0]
-        car["model"] = data[i][1]
-        car["brand"] = data[i][2]
-        car["year"] = data[i][3]
-        car["rentPrice"] = data[i][4]
-        car["status"] = data[i][5]
+        car["plateNum"] = data[i][1]
+        car["model"] = data[i][2]
+        car["brand"] = data[i][3]
+        car["year"] = data[i][4]
+        car["rentPrice"] = data[i][5]
+        car["status"] = data[i][6]
         cars.append(car)
 
 def printData(list):
-    headers = ['No', 'ID', 'Model', 'Brand', 'Year', 'Rental Price', 'Status']
+    headers = ['No', 'ID', 'Plate Number', 'Model', 'Brand', 'Year', 'Rental Price', 'Status']
     width = 15
 
     for header in headers:
@@ -49,6 +51,7 @@ def printData(list):
         print(
             f"{i:<{width}}| "
             f"{obj['id'][:width]:<{width}}| "
+            f"{obj['plateNum'][:width]:<{width}}| "
             f"{obj['model'][:width]:<{width}}| "
             f"{obj['brand'][:width]:<{width}}| "
             f"{str(obj['year'])[:width]:<{width}}| "
@@ -94,13 +97,75 @@ def insertStatus():
         except:
             print("Mohon masukkan angka status.")
 
+def findRegNumber(plateNum, numIdx):
+    regNum = ''
+    while numIdx < len(plateNum):
+        if plateNum[numIdx].isalpha() == False:
+            regNum += plateNum[numIdx]
+        else:
+            break
+        numIdx += 1 
+    return regNum, numIdx
+
+def insertPlateNumber():
+    while True:
+        region = ''
+        regNum = ''
+        comb = ''
+        combStart = -1
+
+        userInput = input("Masukkan pelat nomor:").strip()
+        if len(userInput) > 9:
+            print("Nomor pelat maksimal 9 digit.")
+        else:
+            if " " in userInput:
+                print("Tidak boleh menggunakan spasi.")
+                continue
+
+            if userInput[0].isalpha() and userInput[1].isalpha():
+                region = userInput[0] + userInput[1]
+                regNum, combStart = findRegNumber(userInput, 2)
+            elif userInput[0].isalpha() and userInput[1].isalpha() == False:
+                region = userInput[0]
+                regNum, combStart = findRegNumber(userInput, 1)
+            else:
+                print("Kode daerah tidak boleh berisi angka.")
+                continue
+
+            # print(f'regnum: {regNum}')
+            if regNum == '' or len(regNum) > 4:
+                print("Nomor pelat harus memiliki kombinasi angka dari nol sampai empat digit.")
+                continue
+
+            idx = combStart
+            chCount = 0
+            ch = ''
+            while idx <= len(userInput) - 1:
+                if userInput[idx].isalpha():
+                    chCount += 1
+                    ch += userInput[idx]
+                idx += 1
+            if chCount > 3:
+                print("Kombinasi akhir pelat melebihi batasan 3 huruf.")
+                continue
+            elif chCount < 1:
+                print("Pelat nomor harus memiliki huruf kombinasi di akhir.")
+                continue
+            else:
+                comb = ch
+            # print(f'comb = {comb}')
+
+            return(region + regNum + comb)
+
 def create():
     createLoop = True
     while createLoop:
         try:
-            amount = int(input("Masukkan jumlah data yang ingin dimasukkan:"))
-            if amount < 1:
-                print("Input harus lebih dari 0.")
+            amount = int(input("Masukkan jumlah data yang ingin dimasukkan. Tekan 0 untuk kembali:"))
+            if amount < 0:
+                print("Input harus bilangan positif.")
+            elif amount == 0:
+                break
             else:
                 newData = []
                 for i in range(amount):
@@ -110,10 +175,22 @@ def create():
                     y = insertYear()
                     p = insertPrice()
                     s = insertStatus()
+                    
+                    while True:
+                        pnValid = True
+                        pn = insertPlateNumber()
+                        for obj in cars:
+                            if obj["plateNum"] == pn:
+                                print("Pelat nomor baru sudah terdaftar. Mohon masukkan pelat nomor lain.")
+                                pnValid = False
+                        if pnValid == True:
+                            break
+
 
                     data['year'] = y
                     data['rentPrice'] = p
                     data['status'] = s
+                    data['plateNum'] = pn
                     
                     newData.append(data)
                 
@@ -131,6 +208,7 @@ def create():
                             obj['id'] = new_id    
                             cars.append(obj)
                         createLoop = False
+                        print("Data kendaraan baru berhasil dimasukkan.")
                         break
                     elif userConf.upper() == 'N':
                         break
@@ -143,16 +221,17 @@ def read():
     readText = """
 ==================
 1. Baca semua data
-2. Cari data
+2. Filter data
 3. Kembali ke menu
 ==================
 """
 
     optText = """
 =============================
+0. Kembali ke menu sebelumnya
 1. Cari berdasarkan harga
 2. Cari berdasarkan status
-3. Kembali ke menu sebelumnya
+3. Cari berdasarkan nomor pelat
 =============================
 """
     while True:
@@ -189,6 +268,13 @@ def read():
                             filteredData.append(obj)
                     printData(filteredData)
                 elif userOpt == '3':
+                    plateNum = insertPlateNumber()
+                    filteredData = []
+                    for obj in cars:
+                        if obj['plateNum'] == plateNum:
+                            filteredData.append(obj)
+                    printData(filteredData)
+                elif userOpt == '0':
                     break
                 else:
                     print("Mohon masukkan pilihan yang valid.")
@@ -307,6 +393,26 @@ Angka: Nomor data yang ingin diubah
                             else:
                                 print("Mohon masukkan pilihan yang valid.")
 
+                        while True:
+                            s = input("Apakah ingin mengubah pelat nomor? (Y/N):")
+                            if s.upper() == 'Y':
+                                pn = newObj['plateNum']
+                                while True:
+                                    pnValid = True
+                                    newPn = insertPlateNumber()
+                                    for obj in cars:
+                                        if obj["plateNum"] == newPn and obj["plateNum"] != pn:
+                                            print("Pelat nomor baru sudah terdaftar. Mohon masukkan pelat nomor lain.")
+                                            pnValid = False
+                                    if pnValid == True:
+                                        break
+                                newObj['plateNum'] = newPn
+                                break
+                            elif s.upper() == 'N':
+                                break
+                            else:
+                                print("Mohon masukkan pilihan yang valid.")
+
                         printData([newObj])
 
                         while True:
@@ -318,6 +424,7 @@ Angka: Nomor data yang ingin diubah
                                 obj['year'] = newObj['year']
                                 obj['rentPrice'] = newObj['rentPrice']
                                 obj['status'] = newObj['status']
+                                obj['plateNum'] = newObj['plateNum']
                                 print("Data berhasil diubah")
                                 upLoop2 = False
                                 break
@@ -378,7 +485,6 @@ def endProgram():
 def menu():
     menuText = """
 =====================
-0. Import Data
 1. Create
 2. Read
 3. Update
@@ -386,13 +492,13 @@ def menu():
 5. Exit Program
 =====================
     """
-
+    importData()
     while True:
         print(menuText)
         
         menuOption = input("Pilih menu:")
-        if menuOption == '0':
-            importData()
+        # if menuOption == '0':
+        #     importData()
         if menuOption == '1':
             create()
         elif menuOption == '2':
@@ -405,7 +511,8 @@ def menu():
             endProgram()
             break
         else:
-            print("Mohon masukkan pilihan yang valid:")
+            print("Mohon masukkan pilihan yang valid.")
         
 
 menu()
+# insertPlateNumber()
