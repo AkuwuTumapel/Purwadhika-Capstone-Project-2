@@ -1,7 +1,9 @@
 ## Introduction
 
-This is a simple CRUD system for a car rental system made in Python. It allows manipulation of car objects inside a database for the user.\
-By: Sathya Narendra Atmajati Satoto
+This is a simple CRUD system for a car rental system made in Python. It allows manipulation of car objects inside a database for the user.
+<br><br>
+By: Sathya Narendra Atmajati Satoto \
+Flowchart: https://drive.google.com/file/d/1zYHoAWLd5K0FBHoO6vE88WZvfoIGamNS/view?usp=sharing
 
 ## Features
 <img src="https://github.com/user-attachments/assets/bea33334-8f98-4bee-87a9-4bb013fa0e1e" width="300"/>
