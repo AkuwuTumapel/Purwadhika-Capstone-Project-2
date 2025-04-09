@@ -1,11 +1,14 @@
 from datetime import datetime
 
 # car id - string
+# plate number - string
 # model - string
 # brand - string
 # year - number/int
 # rental price - number/float
 # status - 1 (ready) / 0 (in rent) / 2 (in maintenance)
+
+#Dummy data
 data = [
     ["CR001", "B1234SAT", "Avanza", "Toyota", 2005, 1000000, 1],
     ["CR002", "DA345BX", "Innova", "Toyota", 2015, 1500000, 2],
@@ -14,6 +17,7 @@ data = [
     ["CR005", "B34DK", "Xpander", "Mitsubishi", 2018, 3000000, 1]
 ]
 
+# Car template
 cars = []
 carTemplate = {
     "id": "",
@@ -25,6 +29,7 @@ carTemplate = {
     "status": 0 
 }
 
+# Import dummy data
 def importData():
     for i in range(5):
         car = carTemplate.copy()
@@ -37,15 +42,18 @@ def importData():
         car["status"] = data[i][6]
         cars.append(car)
 
+#Function to print car data from a list of cars
 def printData(list):
     headers = ['No', 'ID', 'Plate Number', 'Model', 'Brand', 'Year', 'Rental Price', 'Status']
     width = 15
 
+    #Print column names / headers
     print('\n')
     for header in headers:
         print(f"{header:<{width}}", end="| ")
     print("\n" + "-" * (width * len(headers) + 2 * len(headers) - 1))
 
+    #Print contents
     i = 1
     for obj in list:
         stat = "Available" if obj['status'] == 1 else "Rented" if obj['status'] == 2 else "In Maintenance" if obj['status'] == 3 else "Unknown"
@@ -61,6 +69,7 @@ def printData(list):
         )
         i += 1
 
+#Function to insert year with validation
 def insertYear():
     curr_y = datetime.now().year
     while True:
@@ -74,6 +83,7 @@ def insertYear():
         except:
             print("Mohon masukkan tahun yang valid.")
 
+#Function to insert price with validation
 def insertPrice():
     while True:
         userInput = input("Masukkan harga:").strip()
@@ -86,6 +96,7 @@ def insertPrice():
         except:
             print("Mohon masukkan angka harga yang valid.")
 
+#Function to insert status with validation
 def insertStatus():
     while True:
         print("Masukkan status: \n1. Available \n2. Rented\n3. In Maintenance")
@@ -98,6 +109,7 @@ def insertStatus():
         except:
             print("Mohon masukkan angka status.")
 
+#Function to check number combination in a given plate number
 def findRegNumber(plateNum, numIdx):
     regNum = ''
     while numIdx < len(plateNum):
@@ -108,6 +120,7 @@ def findRegNumber(plateNum, numIdx):
         numIdx += 1 
     return regNum, numIdx
 
+#Function to insert plate number with validation
 def insertPlateNumber():
     while True:
         region = ''
@@ -165,6 +178,7 @@ def insertPlateNumber():
 
             return(region + regNum + comb)
 
+#Create function to add cars to the program
 def create():
     createLoop = True
     print("""
@@ -180,6 +194,7 @@ Create Menu
             elif amount == 0:
                 break
             else:
+                #Repeat until the desired amount of data is inserted
                 newData = []
                 for i in range(amount):
                     print(f"\nMasukkan data ke-{i+1}:")
@@ -191,6 +206,7 @@ Create Menu
                     p = insertPrice()
                     s = insertStatus()
                     
+                    # Check if plate number already exists
                     while True:
                         pnValid = True
                         pn = insertPlateNumber()
@@ -201,7 +217,6 @@ Create Menu
                         if pnValid == True:
                             break
 
-
                     data['year'] = y
                     data['rentPrice'] = p
                     data['status'] = s
@@ -209,6 +224,7 @@ Create Menu
                     
                     newData.append(data)
                 
+                #Confirm new data
                 printData(newData)
                 while True:
                     userConf = input("Apakah data baru ini sudah benar? (Y/N):")
@@ -231,7 +247,8 @@ Create Menu
                         print("Masukkan konfirmasi yang valid.")
         except:
             print("Hanya boleh masukkan angka.")
-    
+
+#Read function to display data
 def read():
     readText = """
 ==================
@@ -254,12 +271,15 @@ Read Menu
     while True:
         print(readText)
         readOption = input("Pilih opsi baca:")
+        #Display all data
         if readOption == '1':
             printData(cars)
+        #Filter some data
         elif readOption == '2':
             while True:
                 print(optText)
                 userOpt = input("Pilih metode pencarian:")
+                #Filter based on price inclusive
                 if userOpt == '1':
                     while True:
                         try:
@@ -277,6 +297,7 @@ Read Menu
                         if obj['rentPrice'] >= lower and obj['rentPrice'] <= higher:
                             filteredData.append(obj)
                     printData(filteredData)
+                #Filter based on rental status
                 elif userOpt == '2':
                     status = insertStatus()
                     filteredData = []
@@ -284,6 +305,7 @@ Read Menu
                         if obj['status'] == status:
                             filteredData.append(obj)
                     printData(filteredData)
+                #Filter based on unique plate number
                 elif userOpt == '3':
                     plateNum = insertPlateNumber()
                     filteredData = []
@@ -291,15 +313,18 @@ Read Menu
                         if obj['plateNum'] == plateNum:
                             filteredData.append(obj)
                     printData(filteredData)
+                #Return
                 elif userOpt == '0':
                     break
                 else:
                     print("Mohon masukkan pilihan yang valid.")
+        #Return to menu
         elif readOption == '3':
             break
         else:
             print("Mohon masukkan pilihan yang valid.")
 
+#Update function to modify car details
 def update():
     updateText = """
 ======================
@@ -320,6 +345,7 @@ Angka: Nomor data yang ingin diubah
     while True:
         print(updateText)
         upOption = input("Pilih opsi perubahan data:")
+        #Modify car rental status
         if upOption == '1':
             upLoop = True
             while upLoop:
@@ -350,6 +376,7 @@ Angka: Nomor data yang ingin diubah
                         print(f"Masukkan angka yang valid (0 atau 1 -  {lastIndex})")
                 except:
                     print("Mohon masukkan nomor data yang valid.")
+        #Modify all car details
         elif upOption == '2':
             upLoop2 = True
             while upLoop2:
@@ -434,6 +461,7 @@ Angka: Nomor data yang ingin diubah
 
                         printData([newObj])
 
+                        #Confirm all changes
                         while True:
                             userConf = input("Apakah data baru ini sudah benar? (Y/N):")
                             if userConf.upper() == 'Y':
@@ -455,7 +483,7 @@ Angka: Nomor data yang ingin diubah
                     elif idx == 0:
                         upLoop2 = False
                     else:
-                        print(f"Masukkan angka yang valid (0 atau 1 -  {lastIndex})")
+                        print(f"Masukkan angka yang valid (0 atau 1 - {lastIndex})")
                 except:
                     print("Mohon masukkan nomor data yang valid.")
         elif upOption == '3':
@@ -463,6 +491,7 @@ Angka: Nomor data yang ingin diubah
         else:
             print("Mohon masukkan pilihan yang valid.")
 
+#Delete function to remove car from program
 def delete():
     delText = """
 ====================================
@@ -496,13 +525,15 @@ Angka: Nomor data yang ingin dihapus
             elif idx == 0:
                 delLoop = False
             else:
-                print(f"Masukkan angka yang valid (0 atau 1 -  {lastIndex})")
+                print(f"Masukkan angka yang valid (0 atau 1 - {lastIndex})")
         except:
             print("Mohon masukkan nomor data yang valid.")
 
+#Function to exit the program
 def endProgram():
     print("end program")
 
+#Menu function to navigate the program
 def menu():
     menuText = """
 =====================
