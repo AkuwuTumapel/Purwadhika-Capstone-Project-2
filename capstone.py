@@ -41,6 +41,7 @@ def printData(list):
     headers = ['No', 'ID', 'Plate Number', 'Model', 'Brand', 'Year', 'Rental Price', 'Status']
     width = 15
 
+    print('\n')
     for header in headers:
         print(f"{header:<{width}}", end="| ")
     print("\n" + "-" * (width * len(headers) + 2 * len(headers) - 1))
@@ -114,7 +115,7 @@ def insertPlateNumber():
         comb = ''
         combStart = -1
 
-        userInput = input("Masukkan pelat nomor:").strip()
+        userInput = input("Masukkan pelat nomor:").strip().upper()
         if len(userInput) > 9:
             print("Nomor pelat maksimal 9 digit.")
         else:
@@ -129,7 +130,7 @@ def insertPlateNumber():
                 region = userInput[0]
                 regNum, combStart = findRegNumber(userInput, 1)
             else:
-                print("Kode daerah tidak boleh berisi angka.")
+                print("Kode daerah hanya boleh berisi huruf.")
                 continue
 
             # print(f'regnum: {regNum}')
@@ -139,12 +140,19 @@ def insertPlateNumber():
 
             idx = combStart
             chCount = 0
+            combValid = True
             ch = ''
             while idx <= len(userInput) - 1:
-                if userInput[idx].isalpha():
-                    chCount += 1
-                    ch += userInput[idx]
+                if userInput[idx].isalpha() == False:
+                    combValid = False
+                    break
+
+                chCount += 1
+                ch += userInput[idx]
                 idx += 1
+            if combValid == False:
+                print("Kombinasi akhir pelat hanya boleh berisi huruf.")
+                continue
             if chCount > 3:
                 print("Kombinasi akhir pelat melebihi batasan 3 huruf.")
                 continue
@@ -159,6 +167,11 @@ def insertPlateNumber():
 
 def create():
     createLoop = True
+    print("""
+=====================
+Create Menu
+=====================    
+""")
     while createLoop:
         try:
             amount = int(input("Masukkan jumlah data yang ingin dimasukkan. Tekan 0 untuk kembali:"))
@@ -169,6 +182,8 @@ def create():
             else:
                 newData = []
                 for i in range(amount):
+                    print(f"\nMasukkan data ke-{i+1}:")
+                    print("======================")
                     data = carTemplate.copy()
                     data['model'] = input("Masukkan model:").strip()
                     data['brand'] = input("Masukkan brand:").strip()
@@ -219,6 +234,8 @@ def create():
     
 def read():
     readText = """
+==================
+Read Menu
 ==================
 1. Baca semua data
 2. Filter data
@@ -285,6 +302,8 @@ def read():
 
 def update():
     updateText = """
+======================
+Update Menu
 ======================
 1. Ubah status
 2. Ubah data kendaraan
@@ -447,6 +466,8 @@ Angka: Nomor data yang ingin diubah
 def delete():
     delText = """
 ====================================
+Delete Menu
+====================================
 Angka: Nomor data yang ingin dihapus
 0. Kembali ke menu
 ====================================
@@ -484,6 +505,8 @@ def endProgram():
 
 def menu():
     menuText = """
+=====================
+Main Menu
 =====================
 1. Create
 2. Read
